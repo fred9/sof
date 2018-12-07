@@ -225,7 +225,8 @@ static void *alloc_cont_blocks(struct mm_heap *heap, int level,
 	}
 
 	/* not found */
-	trace_mem_error("alloc_cont_blocks() error: not found");
+	trace_mem_error("error: cant find %d cont blocks %d remaining",
+			count, remaining);
 	return NULL;
 
 found:
@@ -456,6 +457,10 @@ void *rmalloc(int zone, uint32_t caps, size_t bytes)
 	}
 
 	spin_unlock_irq(&memmap.lock, flags);
+
+	if (!ptr)
+		trace_mem_error("error: failed to alloc 0x%x bytes caps 0x%x",
+				bytes, caps);
 	return ptr;
 }
 
@@ -544,6 +549,10 @@ out:
 		ptr = cache_to_uncache(ptr);
 
 	spin_unlock_irq(&memmap.lock, flags);
+
+	if (!ptr)
+		trace_mem_error("error: failed to alloc 0x%x bytes caps 0x%x",
+				bytes, caps);
 	return ptr;
 }
 
